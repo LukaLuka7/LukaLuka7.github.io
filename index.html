@@ -13,10 +13,10 @@
     h1 { margin:0 0 8px; font-size:30px; }
     p { color:var(--muted); line-height:1.45; }
     .row { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0; }
-    input { flex:1 1 320px; min-width:280px; padding:12px 14px; border-radius:10px; border:1px solid #3a4165; background:#0f1326; color:var(--text); }
     button { padding:12px 16px; border:0; border-radius:10px; font-weight:700; cursor:pointer; background:var(--accent); color:#021018; }
     .status { margin-top:14px; padding:10px 12px; border-radius:8px; background:#0f1326; border:1px solid #2d3558; color:var(--muted); word-break:break-word; }
     .small { font-size:13px; color:var(--muted); }
+    code { color:#d4e6ff; }
   </style>
 </head>
 <body>
@@ -26,21 +26,22 @@
       <p>Carplay_Geo helps creators connect TikTok, upload videos, and publish posts from one dashboard.</p>
 
       <div class="row">
-        <input id="clientKey" type="text" placeholder="Paste TikTok Client Key here" />
         <button id="connectBtn" type="button">Connect TikTok</button>
       </div>
 
       <div class="small">Redirect URI used by this page: <code>https://lukaluka7.github.io/</code></div>
+      <div class="small">Client Key source: hardcoded in script (`CLIENT_KEY`).</div>
       <div id="status" class="status">Status: waiting for login.</div>
     </div>
   </div>
 
   <script>
     (function () {
+      var CLIENT_KEY = "awz9m1lsxazzypvq";
       var redirectUri = "https://lukaluka7.github.io/";
       var scopes = "user.info.basic,video.upload,video.publish";
+
       var statusEl = document.getElementById("status");
-      var clientKeyInput = document.getElementById("clientKey");
       var connectBtn = document.getElementById("connectBtn");
 
       function setStatus(text) {
@@ -53,16 +54,15 @@
 
       var params = new URLSearchParams(window.location.search);
       if (params.get("code")) {
-        setStatus("OAuth code received. Copy this for your backend token exchange: " + params.get("code"));
+        setStatus("OAuth code received: " + params.get("code"));
       }
       if (params.get("error")) {
         setStatus("OAuth error: " + params.get("error") + (params.get("error_description") ? " - " + params.get("error_description") : ""));
       }
 
       connectBtn.addEventListener("click", function () {
-        var clientKey = clientKeyInput.value.trim();
-        if (!clientKey) {
-          setStatus("Paste your TikTok Client Key first.");
+        if (!CLIENT_KEY) {
+          setStatus("Set CLIENT_KEY in the HTML first.");
           return;
         }
 
@@ -70,7 +70,7 @@
         localStorage.setItem("tt_oauth_state", state);
 
         var authUrl = new URL("https://www.tiktok.com/v2/auth/authorize/");
-        authUrl.searchParams.set("client_key", clientKey);
+        authUrl.searchParams.set("client_key", CLIENT_KEY);
         authUrl.searchParams.set("response_type", "code");
         authUrl.searchParams.set("scope", scopes);
         authUrl.searchParams.set("redirect_uri", redirectUri);
